@@ -30,7 +30,7 @@ class TestLIRbasis(unittest.TestCase):
 
         h = lir.horizontal_adjacency(grid)
         v = lir.vertical_adjacency(grid)
-        span_map = lir.span_map(grid, h, v)
+        span_map = lir.span_map(grid, h, v, 0)
         rect = lir.biggest_span_in_span_map(span_map)
         rect2 = lir.largest_interior_rectangle(grid)
 

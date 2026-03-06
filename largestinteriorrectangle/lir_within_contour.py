@@ -9,14 +9,15 @@ from .lir_basis import v_vector as v_vector_left2right
 from .lir_basis import vertical_adjacency as vertical_adjacency_top2bottom
 
 
-def largest_interior_rectangle(grid, contour):
+def largest_interior_rectangle(grid, contour, target_ratio=None):
     adjacencies = adjacencies_all_directions(grid)
     contour = contour.astype("uint32", order="C")
 
     s_map, _, saddle_candidates_map = create_maps(adjacencies, contour)
     lir1 = biggest_span_in_span_map(s_map)
 
-    s_map = span_map(saddle_candidates_map, adjacencies[0], adjacencies[2])
+    target_ratio = float(target_ratio) if target_ratio is not None else 0
+    s_map = span_map(saddle_candidates_map, adjacencies[0], adjacencies[2], target_ratio)
     lir2 = biggest_span_in_span_map(s_map)
 
     lir = biggest_rectangle(lir1, lir2)

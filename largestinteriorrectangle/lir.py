@@ -3,7 +3,7 @@ from .lir_within_contour import largest_interior_rectangle as lir_within_contour
 from .lir_within_polygon import largest_interior_rectangle as lir_within_polygon
 
 
-def lir(data, contour=None):
+def lir(data, contour=None, target_ratio=None):
     """
     Computes the Largest Interior Rectangle.
     :param data: Can be
@@ -18,11 +18,11 @@ def lir(data, contour=None):
     :rtype: ndarray
     """
     if len(data.shape) == 3:
-        return lir_within_polygon(data)
+        return lir_within_polygon(data, target_ratio)
     if contour is None:
-        return lir_basis(data)
+        return lir_basis(data, target_ratio)
     else:
-        return lir_within_contour(data, contour)
+        return lir_within_contour(data, contour, target_ratio)
 
 
 def pt1(lir):
