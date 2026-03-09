@@ -14,10 +14,12 @@ def lir(data, contour=None, target_ratio=None, target_center=None, tolerance=Non
     :param contour: (optional) 2D ndarray with shape (n, 2) containing xy
     values of a specific contour where the rectangle could start (in all directions).
     Only needed for case 1.
-    :param target_ratio: (optional) float specifying the desired width/height ratio of the rectangle.
-    The rectangle with the largest area that has a width/height ratio closest to the target_ratio is returned.
-    :param target_center: (optional) tuple of 2 floats specifying the desired center of the rectangle.
-    The rectangle with the largest area that has a center closest to the target_center is returned.
+    :param target_ratio: (optional) float specifying the desired width/height ratio
+    of the rectangle. The rectangle with the largest area that has a width/height
+    ratio closest to the target_ratio is returned.
+    :param target_center: (optional) tuple of 2 floats specifying the desired center
+    of the rectangle. The rectangle with the largest area that has a center closest
+     to the target_center is returned.
     :param tolerance: (optional) float specifying the tolerance for the target_center.
     The tolerance with the largest area are considered.
     :return: 1D ndarray with lir specification: x, y, width, height
