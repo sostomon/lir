@@ -13,7 +13,7 @@ from .lir_basis import vertical_adjacency as vertical_adjacency_top2bottom
 
 
 def largest_interior_rectangle(
-    grid, contour, target_ratio=None, target_center=None, candidates=None
+    grid, contour, target_ratio=None, target_center=None, tolerance=None
 ):
     adjacencies = adjacencies_all_directions(grid)
     contour = contour.astype("uint32", order="C")
@@ -23,7 +23,7 @@ def largest_interior_rectangle(
     s_map, _, saddle_candidates_map = create_maps(adjacencies, contour, target_ratio)
     if target_center is not None:
         lir1 = biggest_span_in_span_map_closest_to_center(
-            s_map, target_center, candidates
+            s_map, target_center, tolerance
         )
     else:
         lir1 = biggest_span_in_span_map(s_map)
@@ -33,7 +33,7 @@ def largest_interior_rectangle(
     )
     if target_center is not None:
         lir2 = biggest_span_in_span_map_closest_to_center(
-            s_map, target_center, candidates
+            s_map, target_center, tolerance
         )
     else:
         lir2 = biggest_span_in_span_map(s_map)

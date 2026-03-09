@@ -3,7 +3,7 @@ import numpy as np
 
 
 def largest_interior_rectangle(
-    grid, target_ratio=None, target_center=None, candidates=None
+    grid, target_ratio=None, target_center=None, tolerance=None
 ):
     target_ratio = float(target_ratio) if target_ratio is not None else 0
     h_adjacency = horizontal_adjacency(grid)
@@ -11,7 +11,7 @@ def largest_interior_rectangle(
     s_map = span_map(grid, h_adjacency, v_adjacency, target_ratio)
     if target_center is not None:
         return biggest_span_in_span_map_closest_to_center(
-            s_map, target_center, candidates
+            s_map, target_center, tolerance
         )
     return biggest_span_in_span_map(s_map)
 
@@ -164,17 +164,12 @@ def biggest_span_in_span_map(span_map):
     return np.array([x, y, span[0], span[1]], dtype=np.uint32)
 
 
-def biggest_span_in_span_map_closest_to_center(span_map, target_center, candidates=1):
+def biggest_span_in_span_map_closest_to_center(span_map, target_center, tolerance=0.01):
     areas = span_map[:, :, 0] * span_map[:, :, 1]
-    flat_areas = areas.ravel()
 
-    assert candidates is not None, (
-        "Candidates must be specified when target_center is specified"
-    )
-    assert candidates > 0, "Number of candidates must be at least 1"
-    max_areas = np.argpartition(flat_areas, -candidates)[-candidates:]
-    max_areas = max_areas[np.argsort(areas.flat[max_areas])]
-    ys, xs = np.unravel_index(max_areas, areas.shape)
+    max_area = np.amax(areas)
+    threshold = max_area * (1.0 - tolerance)
+    ys, xs = np.where(areas >= threshold)
 
     ws = span_map[ys, xs, 0]
     hs = span_map[ys, xs, 1]
@@ -185,6 +180,7 @@ def biggest_span_in_span_map_closest_to_center(span_map, target_center, candidat
 
     cx, cy = float(target_center[0]), float(target_center[1])
     d2 = (rcx - cx) ** 2 + (rcy - cy) ** 2
-    i = int(np.argmin(d2))
+
+    i = np.argmin(d2)
 
     return np.array([xs[i], ys[i], ws[i], hs[i]], dtype=np.uint32)

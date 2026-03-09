@@ -3,7 +3,7 @@ from .lir_within_contour import largest_interior_rectangle as lir_within_contour
 from .lir_within_polygon import largest_interior_rectangle as lir_within_polygon
 
 
-def lir(data, contour=None, target_ratio=None, target_center=None, candidates=None):
+def lir(data, contour=None, target_ratio=None, target_center=None, tolerance=None):
     """
     Computes the Largest Interior Rectangle.
     :param data: Can be
@@ -18,8 +18,8 @@ def lir(data, contour=None, target_ratio=None, target_center=None, candidates=No
     The rectangle with the largest area that has a width/height ratio closest to the target_ratio is returned.
     :param target_center: (optional) tuple of 2 floats specifying the desired center of the rectangle.
     The rectangle with the largest area that has a center closest to the target_center is returned.
-    :param candidates: (optional) int specifying the number of candidates to consider when target_center is specified.
-    The candidates with the largest area are considered.
+    :param tolerance: (optional) float specifying the tolerance for the target_center.
+    The tolerance with the largest area are considered.
     :return: 1D ndarray with lir specification: x, y, width, height
     :rtype: ndarray
     """
@@ -28,14 +28,14 @@ def lir(data, contour=None, target_ratio=None, target_center=None, candidates=No
             data,
             target_ratio=target_ratio,
             target_center=target_center,
-            candidates=candidates,
+            tolerance=tolerance,
         )
     if contour is None:
         return lir_basis(
             data,
             target_ratio=target_ratio,
             target_center=target_center,
-            candidates=candidates,
+            tolerance=tolerance,
         )
     else:
         return lir_within_contour(
@@ -43,7 +43,7 @@ def lir(data, contour=None, target_ratio=None, target_center=None, candidates=No
             contour,
             target_ratio=target_ratio,
             target_center=target_center,
-            candidates=candidates,
+            tolerance=tolerance,
         )
 
 
