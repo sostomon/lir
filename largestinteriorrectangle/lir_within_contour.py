@@ -13,10 +13,11 @@ def largest_interior_rectangle(grid, contour, target_ratio=None):
     adjacencies = adjacencies_all_directions(grid)
     contour = contour.astype("uint32", order="C")
 
-    s_map, _, saddle_candidates_map = create_maps(adjacencies, contour)
+    target_ratio = float(target_ratio) if target_ratio is not None else 0
+
+    s_map, _, saddle_candidates_map = create_maps(adjacencies, contour, target_ratio)
     lir1 = biggest_span_in_span_map(s_map)
 
-    target_ratio = float(target_ratio) if target_ratio is not None else 0
     s_map = span_map(saddle_candidates_map, adjacencies[0], adjacencies[2], target_ratio)
     lir2 = biggest_span_in_span_map(s_map)
 
@@ -158,17 +159,18 @@ def cell_on_contour(x, y, contour):
 
 @nb.njit(
     "Tuple((uint32[:,:,::1], uint8[:,::1], boolean[:,::1]))"
-    "(UniTuple(uint32[:,::1], 4), uint32[:,::1])",
+    "(UniTuple(uint32[:,::1], 4), uint32[:,::1], float64)",
     parallel=True,
     cache=True,
 )
-def create_maps(adjacencies, contour):
+def create_maps(adjacencies, contour, target_ratio):
     h_left2right, h_right2left, v_top2bottom, v_bottom2top = adjacencies
 
     shape = h_left2right.shape
     span_map = np.zeros(shape + (2,), "uint32")
     direction_map = np.zeros(shape, "uint8")
     saddle_candidates_map = np.zeros(shape, "bool_")
+    constrained = target_ratio > 0
 
     for idx in nb.prange(len(contour)):
         x, y = contour[idx, 0], contour[idx, 1]
@@ -183,12 +185,33 @@ def create_maps(adjacencies, contour):
             span_array = span_arrays[direction_idx]
             for span_idx in range(span_array.shape[0]):
                 x, y = xy_array[span_idx][0], xy_array[span_idx][1]
-                w, h = span_array[span_idx][0], span_array[span_idx][1]
-                if w * h > span_map[y, x, 0] * span_map[y, x, 1]:
-                    span_map[y, x, :] = np.array([w, h], "uint32")
+                if constrained:
+                    w_max, h_max = span_array[span_idx][0], span_array[span_idx][1]
+
+                    w1 = w_max
+                    h1 = int(w1 / target_ratio)
+                    if h1 > h_max:
+                        h1 = h_max
+                        w1 = int(h1 * target_ratio)
+                    
+                    h2 = h_max
+                    w2 = int(h2 * target_ratio)
+                    if w2 > w_max:
+                        w2 = w_max
+                        h2 = int(w2 / target_ratio)
+                    
+                    if w1 * h1 > span_map[y, x, 0] * span_map[y, x, 1]:
+                        span_map[y, x, :] = np.array([w1, h1], "uint32")
+                    if w2 * h2 > span_map[y, x, 0] * span_map[y, x, 1]:
+                        span_map[y, x, :] = np.array([w2, h2], "uint32")
+                else:
+                    w,h = span_array[span_idx][0], span_array[span_idx][1]
+                    if w * h > span_map[y, x, 0] * span_map[y, x, 1]:
+                        span_map[y, x, :] = np.array([w, h], "uint32")
+                        
                 if n == 3 and not cell_on_contour(x, y, contour):
                     saddle_candidates_map[y, x] = True
-
+   
     return span_map, direction_map, saddle_candidates_map
 
 
