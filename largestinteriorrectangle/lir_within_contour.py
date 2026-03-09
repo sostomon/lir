@@ -1,7 +1,10 @@
 import numba as nb
 import numpy as np
 
-from .lir_basis import biggest_span_in_span_map, biggest_span_in_span_map_closest_to_center
+from .lir_basis import (
+    biggest_span_in_span_map,
+    biggest_span_in_span_map_closest_to_center,
+)
 from .lir_basis import h_vector as h_vector_top2bottom
 from .lir_basis import horizontal_adjacency as horizontal_adjacency_left2right
 from .lir_basis import predict_vector_size, span_map, spans
@@ -9,7 +12,9 @@ from .lir_basis import v_vector as v_vector_left2right
 from .lir_basis import vertical_adjacency as vertical_adjacency_top2bottom
 
 
-def largest_interior_rectangle(grid, contour, target_ratio=None, target_center=None, candidates=None):
+def largest_interior_rectangle(
+    grid, contour, target_ratio=None, target_center=None, candidates=None
+):
     adjacencies = adjacencies_all_directions(grid)
     contour = contour.astype("uint32", order="C")
 
@@ -17,13 +22,19 @@ def largest_interior_rectangle(grid, contour, target_ratio=None, target_center=N
 
     s_map, _, saddle_candidates_map = create_maps(adjacencies, contour, target_ratio)
     if target_center is not None:
-        lir1 = biggest_span_in_span_map_closest_to_center(s_map, target_center, candidates)
+        lir1 = biggest_span_in_span_map_closest_to_center(
+            s_map, target_center, candidates
+        )
     else:
         lir1 = biggest_span_in_span_map(s_map)
 
-    s_map = span_map(saddle_candidates_map, adjacencies[0], adjacencies[2], target_ratio)
+    s_map = span_map(
+        saddle_candidates_map, adjacencies[0], adjacencies[2], target_ratio
+    )
     if target_center is not None:
-        lir2 = biggest_span_in_span_map_closest_to_center(s_map, target_center, candidates)
+        lir2 = biggest_span_in_span_map_closest_to_center(
+            s_map, target_center, candidates
+        )
     else:
         lir2 = biggest_span_in_span_map(s_map)
 
@@ -199,25 +210,25 @@ def create_maps(adjacencies, contour, target_ratio):
                     if h1 > h_max:
                         h1 = h_max
                         w1 = int(h1 * target_ratio)
-                    
+
                     h2 = h_max
                     w2 = int(h2 * target_ratio)
                     if w2 > w_max:
                         w2 = w_max
                         h2 = int(w2 / target_ratio)
-                    
+
                     if w1 * h1 > span_map[y, x, 0] * span_map[y, x, 1]:
                         span_map[y, x, :] = np.array([w1, h1], "uint32")
                     if w2 * h2 > span_map[y, x, 0] * span_map[y, x, 1]:
                         span_map[y, x, :] = np.array([w2, h2], "uint32")
                 else:
-                    w,h = span_array[span_idx][0], span_array[span_idx][1]
+                    w, h = span_array[span_idx][0], span_array[span_idx][1]
                     if w * h > span_map[y, x, 0] * span_map[y, x, 1]:
                         span_map[y, x, :] = np.array([w, h], "uint32")
-                        
+
                 if n == 3 and not cell_on_contour(x, y, contour):
                     saddle_candidates_map[y, x] = True
-   
+
     return span_map, direction_map, saddle_candidates_map
 
 

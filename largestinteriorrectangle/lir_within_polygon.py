@@ -5,7 +5,9 @@ from .lir_within_contour import largest_interior_rectangle as lir_contour
 cv = None  # as an optional dependency opencv will only be imported if needed
 
 
-def largest_interior_rectangle(polygon, target_ratio=None, target_center=None, candidates=None):
+def largest_interior_rectangle(
+    polygon, target_ratio=None, target_center=None, candidates=None
+):
     check_for_opencv()
     origin, mask = create_mask_from_polygon(polygon)
     contours, _ = cv.findContours(mask, cv.RETR_TREE, cv.CHAIN_APPROX_NONE)

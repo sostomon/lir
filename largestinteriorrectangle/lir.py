@@ -16,7 +16,7 @@ def lir(data, contour=None, target_ratio=None, target_center=None, candidates=No
     Only needed for case 1.
     :param target_ratio: (optional) float specifying the desired width/height ratio of the rectangle.
     The rectangle with the largest area that has a width/height ratio closest to the target_ratio is returned.
-    :param target_center: (optional) tuple of 2 floats specifying the desired center of the rectangle. 
+    :param target_center: (optional) tuple of 2 floats specifying the desired center of the rectangle.
     The rectangle with the largest area that has a center closest to the target_center is returned.
     :param candidates: (optional) int specifying the number of candidates to consider when target_center is specified.
     The candidates with the largest area are considered.
@@ -24,11 +24,27 @@ def lir(data, contour=None, target_ratio=None, target_center=None, candidates=No
     :rtype: ndarray
     """
     if len(data.shape) == 3:
-        return lir_within_polygon(data, target_ratio, target_center, candidates)
+        return lir_within_polygon(
+            data,
+            target_ratio=target_ratio,
+            target_center=target_center,
+            candidates=candidates,
+        )
     if contour is None:
-        return lir_basis(data, target_ratio, target_center, candidates)
+        return lir_basis(
+            data,
+            target_ratio=target_ratio,
+            target_center=target_center,
+            candidates=candidates,
+        )
     else:
-        return lir_within_contour(data, contour, target_ratio, target_center, candidates)
+        return lir_within_contour(
+            data,
+            contour,
+            target_ratio=target_ratio,
+            target_center=target_center,
+            candidates=candidates,
+        )
 
 
 def pt1(lir):

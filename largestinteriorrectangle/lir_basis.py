@@ -2,13 +2,17 @@ import numba as nb
 import numpy as np
 
 
-def largest_interior_rectangle(grid, target_ratio=None, target_center=None, candidates=None):
+def largest_interior_rectangle(
+    grid, target_ratio=None, target_center=None, candidates=None
+):
     target_ratio = float(target_ratio) if target_ratio is not None else 0
     h_adjacency = horizontal_adjacency(grid)
     v_adjacency = vertical_adjacency(grid)
     s_map = span_map(grid, h_adjacency, v_adjacency, target_ratio)
     if target_center is not None:
-        return biggest_span_in_span_map_closest_to_center(s_map, target_center, candidates)
+        return biggest_span_in_span_map_closest_to_center(
+            s_map, target_center, candidates
+        )
     return biggest_span_in_span_map(s_map)
 
 
@@ -24,6 +28,7 @@ def horizontal_adjacency(grid):
                 span = 0
             result[y, x] = span
     return result
+
 
 @nb.njit("uint32[:,::1](boolean[:,::1])", parallel=True, cache=True)
 def vertical_adjacency(grid):
@@ -78,11 +83,12 @@ def spans(h_vector, v_vector):
     spans = np.stack((h_vector, v_vector[::-1]), axis=1)
     return spans
 
+
 @nb.njit("uint32[:](uint32[:,:], float64)", cache=True)
 def biggest_constrained_span(spans, target_ratio):
     if len(spans) == 0:
         return np.array([0, 0], dtype=np.uint32)
-    
+
     max_area = 0
     best_w = 0
     best_h = 0
@@ -90,7 +96,7 @@ def biggest_constrained_span(spans, target_ratio):
     for i in nb.prange(len(spans)):
         W_max = spans[i, 0]
         H_max = spans[i, 1]
-        
+
         w1 = W_max
         h1 = int(w1 / target_ratio)
         if h1 > H_max:
@@ -102,10 +108,10 @@ def biggest_constrained_span(spans, target_ratio):
         if w2 > W_max:
             w2 = W_max
             h2 = int(w2 / target_ratio)
-        
+
         area1 = w1 * h1
         area2 = w2 * h2
-        
+
         if area1 > max_area:
             max_area = area1
             best_w, best_h = w1, h1
@@ -157,6 +163,7 @@ def biggest_span_in_span_map(span_map):
     span = span_map[y, x]
     return np.array([x, y, span[0], span[1]], dtype=np.uint32)
 
+
 def biggest_span_in_span_map_closest_to_center(span_map, target_center, candidates=1):
     areas = span_map[:, :, 0] * span_map[:, :, 1]
     flat_areas = areas.ravel()
@@ -178,4 +185,3 @@ def biggest_span_in_span_map_closest_to_center(span_map, target_center, candidat
     i = int(np.argmin(d2))
 
     return np.array([xs[i], ys[i], ws[i], hs[i]], dtype=np.uint32)
-
