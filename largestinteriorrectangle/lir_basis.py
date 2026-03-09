@@ -168,6 +168,9 @@ def biggest_span_in_span_map_closest_to_center(span_map, target_center, candidat
     areas = span_map[:, :, 0] * span_map[:, :, 1]
     flat_areas = areas.ravel()
 
+    assert candidates is not None, (
+        "Candidates must be specified when target_center is specified"
+    )
     assert candidates > 0, "Number of candidates must be at least 1"
     max_areas = np.argpartition(flat_areas, -candidates)[-candidates:]
     max_areas = max_areas[np.argsort(areas.flat[max_areas])]
