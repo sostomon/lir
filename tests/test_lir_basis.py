@@ -37,6 +37,35 @@ class TestLIRbasis(unittest.TestCase):
         np.testing.assert_array_equal(rect, np.array([2, 2, 4, 7]))
         np.testing.assert_array_equal(rect, rect2)
 
+    def test_constrained_lir(self):
+        grid = np.array(
+            [
+                [0, 0, 1, 0, 0, 0, 0, 0, 0],
+                [0, 0, 1, 0, 1, 1, 0, 0, 0],
+                [0, 0, 1, 1, 1, 1, 1, 0, 0],
+                [0, 0, 1, 1, 1, 1, 1, 1, 0],
+                [0, 0, 1, 1, 1, 1, 1, 1, 0],
+                [0, 1, 1, 1, 1, 1, 1, 0, 0],
+                [0, 0, 1, 1, 1, 1, 0, 0, 0],
+                [0, 0, 1, 1, 1, 1, 0, 0, 0],
+                [1, 1, 1, 1, 1, 1, 0, 0, 0],
+                [1, 1, 0, 0, 0, 1, 1, 1, 1],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            ]
+        )
+        grid = grid > 0
+
+        target_ratio = 2
+
+        h = lir.horizontal_adjacency(grid)
+        v = lir.vertical_adjacency(grid)
+        span_map = lir.span_map(grid, h, v, target_ratio)
+        rect = lir.biggest_span_in_span_map(span_map)
+        rect2 = lir.largest_interior_rectangle(grid, target_ratio)
+
+        np.testing.assert_array_equal(rect, np.array([2, 2, 5, 2]))
+        np.testing.assert_array_equal(rect, rect2)
+
     def test_spans(self):
         grid = np.array(
             [[1, 1, 1], [1, 1, 0], [1, 0, 0], [1, 0, 0], [1, 0, 0], [1, 1, 1]]
