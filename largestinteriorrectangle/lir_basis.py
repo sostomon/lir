@@ -10,6 +10,7 @@ def largest_interior_rectangle(
     v_adjacency = vertical_adjacency(grid)
     s_map = span_map(grid, h_adjacency, v_adjacency, target_ratio)
     if target_center is not None:
+        assert tolerance is not None, "tolerance must be provided when target_center is used"
         return biggest_span_in_span_map_closest_to_center(
             s_map, target_center, tolerance
         )
