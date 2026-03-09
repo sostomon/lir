@@ -3,7 +3,7 @@ from .lir_within_contour import largest_interior_rectangle as lir_within_contour
 from .lir_within_polygon import largest_interior_rectangle as lir_within_polygon
 
 
-def lir(data, contour=None, target_ratio=None):
+def lir(data, contour=None, target_ratio=None, target_center=None, candidates=None):
     """
     Computes the Largest Interior Rectangle.
     :param data: Can be
@@ -14,15 +14,21 @@ def lir(data, contour=None, target_ratio=None):
     :param contour: (optional) 2D ndarray with shape (n, 2) containing xy
     values of a specific contour where the rectangle could start (in all directions).
     Only needed for case 1.
+    :param target_ratio: (optional) float specifying the desired width/height ratio of the rectangle.
+    The rectangle with the largest area that has a width/height ratio closest to the target_ratio is returned.
+    :param target_center: (optional) tuple of 2 floats specifying the desired center of the rectangle. 
+    The rectangle with the largest area that has a center closest to the target_center is returned.
+    :param candidates: (optional) int specifying the number of candidates to consider when target_center is specified.
+    The candidates with the largest area are considered.
     :return: 1D ndarray with lir specification: x, y, width, height
     :rtype: ndarray
     """
     if len(data.shape) == 3:
-        return lir_within_polygon(data, target_ratio)
+        return lir_within_polygon(data, target_ratio, target_center, candidates)
     if contour is None:
-        return lir_basis(data, target_ratio)
+        return lir_basis(data, target_ratio, target_center, candidates)
     else:
-        return lir_within_contour(data, contour, target_ratio)
+        return lir_within_contour(data, contour, target_ratio, target_center, candidates)
 
 
 def pt1(lir):

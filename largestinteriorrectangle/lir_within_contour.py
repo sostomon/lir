@@ -1,7 +1,7 @@
 import numba as nb
 import numpy as np
 
-from .lir_basis import biggest_span_in_span_map
+from .lir_basis import biggest_span_in_span_map, biggest_span_in_span_map_closest_to_center
 from .lir_basis import h_vector as h_vector_top2bottom
 from .lir_basis import horizontal_adjacency as horizontal_adjacency_left2right
 from .lir_basis import predict_vector_size, span_map, spans
@@ -9,17 +9,23 @@ from .lir_basis import v_vector as v_vector_left2right
 from .lir_basis import vertical_adjacency as vertical_adjacency_top2bottom
 
 
-def largest_interior_rectangle(grid, contour, target_ratio=None):
+def largest_interior_rectangle(grid, contour, target_ratio=None, target_center=None, candidates=None):
     adjacencies = adjacencies_all_directions(grid)
     contour = contour.astype("uint32", order="C")
 
     target_ratio = float(target_ratio) if target_ratio is not None else 0
 
     s_map, _, saddle_candidates_map = create_maps(adjacencies, contour, target_ratio)
-    lir1 = biggest_span_in_span_map(s_map)
+    if target_center is not None:
+        lir1 = biggest_span_in_span_map_closest_to_center(s_map, target_center, candidates)
+    else:
+        lir1 = biggest_span_in_span_map(s_map)
 
     s_map = span_map(saddle_candidates_map, adjacencies[0], adjacencies[2], target_ratio)
-    lir2 = biggest_span_in_span_map(s_map)
+    if target_center is not None:
+        lir2 = biggest_span_in_span_map_closest_to_center(s_map, target_center, candidates)
+    else:
+        lir2 = biggest_span_in_span_map(s_map)
 
     lir = biggest_rectangle(lir1, lir2)
     return lir

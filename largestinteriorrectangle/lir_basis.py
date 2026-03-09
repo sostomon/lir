@@ -2,11 +2,13 @@ import numba as nb
 import numpy as np
 
 
-def largest_interior_rectangle(grid, target_ratio=None):
+def largest_interior_rectangle(grid, target_ratio=None, target_center=None, candidates=None):
     target_ratio = float(target_ratio) if target_ratio is not None else 0
     h_adjacency = horizontal_adjacency(grid)
     v_adjacency = vertical_adjacency(grid)
     s_map = span_map(grid, h_adjacency, v_adjacency, target_ratio)
+    if target_center is not None:
+        return biggest_span_in_span_map_closest_to_center(s_map, target_center, candidates)
     return biggest_span_in_span_map(s_map)
 
 
@@ -154,3 +156,26 @@ def biggest_span_in_span_map(span_map):
     y = largest_rectangle_indices[0][0]
     span = span_map[y, x]
     return np.array([x, y, span[0], span[1]], dtype=np.uint32)
+
+def biggest_span_in_span_map_closest_to_center(span_map, target_center, candidates=1):
+    areas = span_map[:, :, 0] * span_map[:, :, 1]
+    flat_areas = areas.ravel()
+
+    assert candidates > 0, "Number of candidates must be at least 1"
+    max_areas = np.argpartition(flat_areas, -candidates)[-candidates:]
+    max_areas = max_areas[np.argsort(areas.flat[max_areas])]
+    ys, xs = np.unravel_index(max_areas, areas.shape)
+
+    ws = span_map[ys, xs, 0]
+    hs = span_map[ys, xs, 1]
+
+    # inclusive rectangle convention (matches pt2)
+    rcx = xs.astype(np.float64) + (ws - 1.0) / 2.0
+    rcy = ys.astype(np.float64) + (hs - 1.0) / 2.0
+
+    cx, cy = float(target_center[0]), float(target_center[1])
+    d2 = (rcx - cx) ** 2 + (rcy - cy) ** 2
+    i = int(np.argmin(d2))
+
+    return np.array([xs[i], ys[i], ws[i], hs[i]], dtype=np.uint32)
+
