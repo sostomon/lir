@@ -38,7 +38,7 @@ def largest_interior_rectangle(
     else:
         lir2 = biggest_span_in_span_map(s_map)
 
-    lir = biggest_rectangle(lir1, lir2)
+    lir = choose_rectangle(lir1, lir2, target_center)
     return lir
 
 
@@ -238,3 +238,29 @@ def biggest_rectangle(*args):
         if rect[2] * rect[3] > biggest_rect[2] * biggest_rect[3]:
             biggest_rect = rect
     return biggest_rect
+
+
+def rectangle_center_distance(rect, target_center):
+    rcx = float(rect[0]) + (float(rect[2]) - 1.0) / 2.0
+    rcy = float(rect[1]) + (float(rect[3]) - 1.0) / 2.0
+    dx = rcx - float(target_center[0])
+    dy = rcy - float(target_center[1])
+    return dx * dx + dy * dy
+
+
+def choose_rectangle(rect1, rect2, target_center=None):
+    if target_center is None:
+        return biggest_rectangle(rect1, rect2)
+
+    d1 = rectangle_center_distance(rect1, target_center)
+    d2 = rectangle_center_distance(rect2, target_center)
+    if d1 < d2:
+        return rect1
+    if d2 < d1:
+        return rect2
+
+    a1 = rect1[2] * rect1[3]
+    a2 = rect2[2] * rect2[3]
+    if a1 >= a2:
+        return rect1
+    return rect2
