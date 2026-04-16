@@ -171,6 +171,10 @@ def biggest_span_in_span_map_closest_to_center(span_map, target_center, toleranc
     areas = span_map[:, :, 0] * span_map[:, :, 1]
 
     max_area = np.amax(areas)
+
+    if max_area == 0:
+        return np.array([0, 0, 0, 0], dtype=np.uint32)
+
     threshold = max_area * (1.0 - tolerance)
     ys, xs = np.where(areas >= threshold)
 
